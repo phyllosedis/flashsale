@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DbClientSqlFileBindings">
+    <bindings>
+      <Binding>
+        <option name="connectionId" value="d1d01e95-ab17-4772-9360-ac920931d040" />
+        <option name="database" value="postgres" />
+        <option name="url" value="file://$PROJECT_DIR$/src/main/resources/migration/base/01-init.sql" />
+      </Binding>
+      <Binding>
+        <option name="connectionId" value="d1d01e95-ab17-4772-9360-ac920931d040" />
+        <option name="database" value="flashsale_payment" />
+        <option name="schema" value="public" />
+        <option name="url" value="file://$PROJECT_DIR$/payment/src/main/resources/migration/base/01-init.sql" />
+      </Binding>
+    </bindings>
+  </component>
+</project>
