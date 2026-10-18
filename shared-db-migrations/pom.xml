@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>ru.phyllosedis.flashsale</groupId>
-    <artifactId>shared-db-outbox</artifactId>
+    <artifactId>shared-db-migrations</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

@@ -14,7 +14,8 @@
         <module>gateway</module>
         <module>order</module>
         <module>event</module>
-        <module>shared-db-outbox</module>
+        <module>shared-db-migrations</module>
+        <module>shared-db-jdbc</module>
     </modules>
 
     <parent>

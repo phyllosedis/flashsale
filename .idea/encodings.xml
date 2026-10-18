@@ -8,7 +8,8 @@
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payment/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/shared-db-outbox/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-db-jdbc/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-db-migrations/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/user/src/main/java" charset="UTF-8" />
