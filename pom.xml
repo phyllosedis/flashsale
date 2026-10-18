@@ -13,6 +13,8 @@
         <module>payment</module>
         <module>gateway</module>
         <module>order</module>
+        <module>event</module>
+        <module>shared-db-outbox</module>
     </modules>
 
     <parent>
