@@ -2,7 +2,6 @@ package ru.phyllosedis.flashsale.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

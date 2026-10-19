@@ -12,15 +12,14 @@ public class OutboxJdbcRepository {
 
     public void save(Outbox outbox) {
         String sql = """
-                INSERT INTO outbox(id, event_type, status, payload, created_at)
-                VALUES (:id, :event_type, :status, :payload::jsonb, :created_at);
+                INSERT INTO outbox(id, entity_id, event_type, payload)
+                VALUES (:id, :entity_id, :event_type, :payload::jsonb);
                 """;
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource()
                 .addValue("id", outbox.getId())
+                .addValue("entity_id", outbox.getEntityId())
                 .addValue("event_type", outbox.getEventType())
-                .addValue("status", outbox.getStatus())
-                .addValue("payload", outbox.getPayload())
-                .addValue("created_at", outbox.getCreatedAt());
+                .addValue("payload", outbox.getPayload());
         jdbcTemplate.update(sql, sqlParameterSource);
     }
 }
