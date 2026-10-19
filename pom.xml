@@ -16,6 +16,7 @@
         <module>event</module>
         <module>shared-db-migrations</module>
         <module>shared-db-jdbc</module>
+        <module>shared-lib</module>
     </modules>
 
     <parent>

@@ -1,4 +1,4 @@
-package ru.phyllosedis.flashsale.user;
+package ru.phyllosedis.flashsale.shared.lib.event.user;
 
 import java.util.UUID;
 

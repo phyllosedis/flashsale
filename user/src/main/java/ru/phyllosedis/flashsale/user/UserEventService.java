@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.phyllosedis.flashsale.shared.db.outbox.Outbox;
 import ru.phyllosedis.flashsale.shared.db.outbox.OutboxJdbcRepository;
+import ru.phyllosedis.flashsale.shared.lib.event.user.UserCreatedEvent;
 
 import java.util.UUID;
 
@@ -17,7 +18,6 @@ public class UserEventService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OutboxJdbcRepository outboxJdbcRepository;
     private final UserJdbcRepository userJdbcRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public void save(User user) throws JsonProcessingException {
