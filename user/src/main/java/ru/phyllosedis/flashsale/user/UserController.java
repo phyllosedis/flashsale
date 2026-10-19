@@ -17,7 +17,7 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<Boolean> createUser(@RequestBody CreateUserDto dto) {
-        boolean register = userService.register(dto);
-        return new ResponseEntity<>(register, register ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR);
+        userService.register(dto);
+        return ResponseEntity.ok(true); // todo организовать api с ошибкой
     }
 }

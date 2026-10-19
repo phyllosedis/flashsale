@@ -1,5 +1,6 @@
 package ru.phyllosedis.flashsale.shared.db.outbox;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Table(name = "outbox")
 @Getter
 @Setter
+@Builder
 public class Outbox {
     @Id
     private UUID id;

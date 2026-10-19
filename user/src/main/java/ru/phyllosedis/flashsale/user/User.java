@@ -17,23 +17,23 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID id;
+    private UUID id;
 
     @Column(name = "email", nullable = false, unique = true)
-    String email;
+    private String email;
 
     @Column(name = "phone", length = 12, nullable = false, unique = true)
-    String phone;
+    private String phone;
 
     @Column(name = "last_name", nullable = false)
-    String lastName;
+    private String lastName;
 
     @Column(name = "first_name", nullable = false)
-    String firstName;
+    private String firstName;
 
     @Column(name = "password_hash", nullable = false)
-    String passwordHash;
+    private String passwordHash;
 
     @Column(name = "created_at")
-    ZonedDateTime createdAt;
+    private ZonedDateTime createdAt;
 }
