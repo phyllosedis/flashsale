@@ -1,6 +1,10 @@
 package ru.phyllosedis.flashsale.payment;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.phyllosedis.flashsale.account.Account;
@@ -145,5 +149,12 @@ public class PaymentServiceConcurrencyTest {
                 .filter(e -> e.equals(TransactionFailedReason.NOT_ENOUGH_MONEY))
                 .count();
         Assertions.assertEquals(2, countRejectedByReason);
+    }
+
+    @Test
+    void transferNegativeValue() throws Exception {
+        paymentService.makeTransaction(accountAlphaId, accountBetaId, new BigDecimal(-100));
+        Account alpha = accountRepository.findById(accountAlphaId).orElseThrow();
+        Assertions.assertEquals(1000L, alpha.getAmount().longValue());
     }
 }

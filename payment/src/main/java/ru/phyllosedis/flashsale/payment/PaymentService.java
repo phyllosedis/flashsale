@@ -19,21 +19,14 @@ public class PaymentService {
     private final MoneyTransferService moneyTransferService;
 
     public void makeTransaction(UUID from, UUID to, BigDecimal amount) {
-        if (from.equals(to)) {
-            Transaction transaction = new Transaction();
-            transaction.setFrom(from);
-            transaction.setTo(to);
-            transaction.setAmount(amount);
-            transaction.setStatus(TransactionStatus.REJECTED);
-            transaction.setReason(TransactionFailedReason.SAME_ACCOUNT);
-            transactionRepository.save(transaction);
+        Transaction transaction = new Transaction();
+
+        boolean validate = validate(transaction, from, to, amount);
+
+        if (!validate) {
             return;
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setFrom(from);
-        transaction.setTo(to);
-        transaction.setAmount(amount);
         transaction.setStatus(TransactionStatus.NEW);
         transaction = transactionRepository.save(transaction);
 
@@ -41,7 +34,7 @@ public class PaymentService {
             transaction.setStatus(TransactionStatus.PENDING);
 
             transactionRepository.save(transaction);
-            
+
             moneyTransferService.executeTransfer(from, to, amount);
 
             transaction.setStatus(TransactionStatus.COMPLETED);
@@ -54,5 +47,25 @@ public class PaymentService {
         } finally {
             transactionRepository.save(transaction);
         }
+    }
+
+    private boolean validate(Transaction transaction, UUID from, UUID to, BigDecimal amount) {
+        transaction.setFrom(from);
+        transaction.setTo(to);
+        transaction.setAmount(amount);
+
+        if (amount.compareTo(new BigDecimal(0)) < 0) {
+            transaction.setStatus(TransactionStatus.REJECTED);
+            transaction.setReason(TransactionFailedReason.INVALID_MONEY_VALUE);
+            transactionRepository.save(transaction);
+            return false;
+        }
+        if (from.equals(to)) {
+            transaction.setStatus(TransactionStatus.REJECTED);
+            transaction.setReason(TransactionFailedReason.SAME_ACCOUNT);
+            transactionRepository.save(transaction);
+            return false;
+        }
+        return true;
     }
 }
