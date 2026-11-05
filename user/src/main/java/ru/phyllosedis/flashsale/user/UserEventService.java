@@ -1,10 +1,9 @@
 package ru.phyllosedis.flashsale.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 import ru.phyllosedis.flashsale.shared.db.outbox.Outbox;
 import ru.phyllosedis.flashsale.shared.db.outbox.OutboxJdbcRepository;
 import ru.phyllosedis.flashsale.shared.lib.event.user.UserCreatedEvent;
@@ -15,12 +14,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserEventService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final OutboxJdbcRepository outboxJdbcRepository;
     private final UserJdbcRepository userJdbcRepository;
 
     @Transactional
-    public void save(User user) throws JsonProcessingException {
+    public void save(User user) {
         UserCreatedEvent userCreatedEvent = new UserCreatedEvent(
                 user.getId(),
                 user.getEmail(),

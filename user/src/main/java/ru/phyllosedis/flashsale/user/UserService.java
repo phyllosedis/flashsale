@@ -1,6 +1,5 @@
 package ru.phyllosedis.flashsale.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserEventService userEventService;
 
-    public UUID register(CreateUserDto dto) throws JsonProcessingException {
+    public UUID register(CreateUserDto dto) {
         if (userRepository.existsByEmail(dto.email()) || userRepository.existsByPhone(dto.phone())) {
             return null;
         }

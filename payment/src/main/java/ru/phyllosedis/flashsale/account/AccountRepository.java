@@ -15,4 +15,6 @@ public interface AccountRepository extends CrudRepository<Account, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from Account a where a.id = :id")
     Optional<Account> findByIdForUpdate(UUID id);
+
+    boolean existsByUserId(UUID userId);
 }
