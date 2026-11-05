@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.phyllosedis.flashsale.account.Account;
 import ru.phyllosedis.flashsale.account.AccountRepository;
 import ru.phyllosedis.flashsale.transaction.Transaction;
@@ -38,12 +39,15 @@ class PaymentServiceConcurrencyTest {
     private AccountRepository accountRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private UUID accountAlphaId;
     private UUID accountBetaId;
 
     @BeforeEach
     void setUp() {
+        jdbcTemplate.update("DELETE FROM payment_idempotency");
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
 
@@ -58,6 +62,7 @@ class PaymentServiceConcurrencyTest {
 
     @AfterEach
     void tearDown() {
+        jdbcTemplate.update("DELETE FROM payment_idempotency");
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
     }
@@ -128,6 +133,24 @@ class PaymentServiceConcurrencyTest {
         assertThat(rejected).hasSize(2);
         assertThat(rejected).allMatch(transaction ->
                 transaction.getReason() == TransactionFailedReason.NOT_ENOUGH_MONEY);
+    }
+
+    @Test
+    @DisplayName("A replayed idempotency key moves money only once")
+    void idempotentReplayMovesMoneyOnce() {
+        String key = UUID.randomUUID().toString();
+
+        PaymentResult first = paymentService.makeTransaction(
+                accountAlphaId, accountBetaId, BigDecimal.TEN, key);
+        PaymentResult replay = paymentService.makeTransaction(
+                accountAlphaId, accountBetaId, BigDecimal.TEN, key);
+
+        assertThat(replay.transactionId()).isEqualTo(first.transactionId());
+        assertThat(accountRepository.findById(accountAlphaId).orElseThrow().getAmount())
+                .isEqualByComparingTo(BigDecimal.valueOf(990));
+        assertThat(accountRepository.findById(accountBetaId).orElseThrow().getAmount())
+                .isEqualByComparingTo(BigDecimal.valueOf(1010));
+        assertThat(transactionRepository.findAll()).hasSize(1);
     }
 
     @Test

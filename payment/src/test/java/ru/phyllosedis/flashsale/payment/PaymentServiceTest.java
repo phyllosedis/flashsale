@@ -7,12 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.phyllosedis.flashsale.payment.exceptions.IdempotencyConflictException;
+import ru.phyllosedis.flashsale.payment.idempotency.PaymentIdempotencyService;
 import ru.phyllosedis.flashsale.transaction.Transaction;
 import ru.phyllosedis.flashsale.transaction.TransactionFailedReason;
 import ru.phyllosedis.flashsale.transaction.TransactionRepository;
 import ru.phyllosedis.flashsale.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +34,8 @@ class PaymentServiceTest {
     private TransactionRepository transactionRepository;
     @Mock
     private MoneyTransferService moneyTransferService;
+    @Mock
+    private PaymentIdempotencyService idempotencyService;
 
     private PaymentService paymentService;
 
@@ -39,7 +44,7 @@ class PaymentServiceTest {
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentService(transactionRepository, moneyTransferService);
+        paymentService = new PaymentService(transactionRepository, moneyTransferService, idempotencyService);
         lenient().when(transactionRepository.save(any(Transaction.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
     }
@@ -116,6 +121,61 @@ class PaymentServiceTest {
         assertThat(saved.getStatus()).isEqualTo(TransactionStatus.COMPLETED);
         assertThat(saved.getReason()).isNull();
         verify(moneyTransferService).executeTransfer(accountFrom, accountTo, BigDecimal.TEN);
+    }
+
+    @Test
+    @DisplayName("A replayed idempotency key returns the original result without moving money")
+    void replayReturnsOriginalResult() {
+        PaymentResult original = new PaymentResult(
+                UUID.randomUUID(), TransactionStatus.COMPLETED, null);
+        when(idempotencyService.findResult("order-42")).thenReturn(Optional.of(original));
+
+        PaymentResult result = paymentService.makeTransaction(
+                accountFrom, accountTo, BigDecimal.TEN, "order-42");
+
+        assertThat(result).isEqualTo(original);
+        verifyNoInteractions(moneyTransferService);
+        verify(idempotencyService, never()).reserve(any());
+    }
+
+    @Test
+    @DisplayName("A key reserved by an in-flight request produces a conflict")
+    void inFlightIdempotencyKeyProducesConflict() {
+        when(idempotencyService.findResult("order-42")).thenReturn(Optional.empty());
+        when(idempotencyService.reserve("order-42")).thenReturn(false);
+
+        assertThatThrownBy(() -> paymentService.makeTransaction(
+                accountFrom, accountTo, BigDecimal.TEN, "order-42"))
+                .isInstanceOf(IdempotencyConflictException.class)
+                .hasMessageContaining("order-42");
+
+        verifyNoInteractions(moneyTransferService);
+    }
+
+    @Test
+    @DisplayName("A fresh idempotency key is reserved and completed")
+    void freshIdempotencyKeyIsReservedAndCompleted() {
+        when(idempotencyService.findResult("order-42")).thenReturn(Optional.empty());
+        when(idempotencyService.reserve("order-42")).thenReturn(true);
+        when(moneyTransferService.executeTransfer(accountFrom, accountTo, BigDecimal.TEN))
+                .thenReturn(true);
+
+        paymentService.makeTransaction(accountFrom, accountTo, BigDecimal.TEN, "order-42");
+
+        verify(idempotencyService).complete("order-42", null);
+    }
+
+    @Test
+    @DisplayName("Too long idempotency keys are rejected before any database work")
+    void tooLongIdempotencyKeyIsRejected() {
+        String key = "x".repeat(129);
+
+        assertThatThrownBy(() -> paymentService.makeTransaction(
+                accountFrom, accountTo, BigDecimal.TEN, key))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Idempotency-Key");
+
+        verifyNoInteractions(moneyTransferService);
     }
 
     private Transaction lastSavedTransaction() {

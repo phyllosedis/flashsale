@@ -8,4 +8,7 @@
     <changeSet id="02" author="phyllosedis">
         <sqlFile path="02-account-unique.sql" relativeToChangelogFile="true"/>
     </changeSet>
+    <changeSet id="03" author="phyllosedis">
+        <sqlFile path="03-idempotency.sql" relativeToChangelogFile="true"/>
+    </changeSet>
 </databaseChangeLog>
