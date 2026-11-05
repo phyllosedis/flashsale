@@ -40,6 +40,7 @@ build/
 .aiforopenide/
 amplicode.xml
 *.log
+.env
 
 ### Mac OS ###
 .DS_Store

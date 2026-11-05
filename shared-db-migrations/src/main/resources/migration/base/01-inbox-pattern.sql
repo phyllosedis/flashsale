@@ -7,4 +7,6 @@ CREATE TABLE inbox(
     processed_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_inbox_status ON inbox(status) WHERE (status = 'NEW');
+-- A plain index is used instead of a partial index because the project also runs
+-- Liquibase against H2 in PostgreSQL compatibility mode during tests.
+CREATE INDEX idx_inbox_status ON inbox(status);

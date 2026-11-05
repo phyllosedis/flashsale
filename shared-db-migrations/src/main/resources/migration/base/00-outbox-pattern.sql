@@ -7,4 +7,6 @@ CREATE TABLE outbox(
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_outbox_status ON outbox(status) WHERE (status = 'NEW');
+-- A plain index is used instead of a partial index because the project also runs
+-- Liquibase against H2 in PostgreSQL compatibility mode during tests.
+CREATE INDEX idx_outbox_status ON outbox(status);

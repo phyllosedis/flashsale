@@ -2,6 +2,7 @@ package ru.phyllosedis.flashsale.user;
 
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,11 +15,14 @@ public class UserService {
     private final UserEventService userEventService;
 
     public UUID register(CreateUserDto dto) {
-        if (userRepository.existsByEmail(dto.email()) || userRepository.existsByPhone(dto.phone())) {
-            return null;
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new UserAlreadyExistsException("User with email " + dto.email() + " already exists");
         }
-        String salt = BCrypt.gensalt();
-        String passwordHash = BCrypt.hashpw(dto.password(), salt);
+        if (userRepository.existsByPhone(dto.phone())) {
+            throw new UserAlreadyExistsException("User with phone " + dto.phone() + " already exists");
+        }
+
+        String passwordHash = BCrypt.hashpw(dto.password(), BCrypt.gensalt());
 
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -29,7 +33,15 @@ public class UserService {
                 .passwordHash(passwordHash)
                 .build();
 
-        userEventService.save(user);
+        try {
+            userEventService.save(user);
+        } catch (DataIntegrityViolationException e) {
+            // The unique constraints on email/phone are the source of truth; the checks
+            // above only provide a friendly message in the common case. Two concurrent
+            // registrations can still race here.
+            throw new UserAlreadyExistsException("User with the same email or phone already exists");
+        }
+
         return user.getId();
     }
 }

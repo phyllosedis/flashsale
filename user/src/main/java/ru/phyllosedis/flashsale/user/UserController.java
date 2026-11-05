@@ -1,5 +1,6 @@
 package ru.phyllosedis.flashsale.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/create")
-    public ResponseEntity<UUID> createUser(@RequestBody CreateUserDto dto) {
+    public ResponseEntity<UUID> createUser(@Valid @RequestBody CreateUserDto dto) {
         UUID userId = userService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(userId);
     }

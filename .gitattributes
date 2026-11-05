@@ -1,0 +1,9 @@
+* text=auto
+
+# Keep executable and mounted scripts LF-only even on Windows checkouts.
+*.sh text eol=lf
+mvnw text eol=lf
+*.sql text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf

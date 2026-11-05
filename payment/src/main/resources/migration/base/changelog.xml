@@ -5,4 +5,7 @@
     <changeSet id="01" author="phyllosedis">
         <sqlFile path="01-init.sql" relativeToChangelogFile="true"/>
     </changeSet>
+    <changeSet id="02" author="phyllosedis">
+        <sqlFile path="02-account-unique.sql" relativeToChangelogFile="true"/>
+    </changeSet>
 </databaseChangeLog>
