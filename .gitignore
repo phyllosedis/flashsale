@@ -36,5 +36,10 @@ build/
 ### VS Code ###
 .vscode/
 
+### Local tooling ###
+.aiforopenide/
+amplicode.xml
+*.log
+
 ### Mac OS ###
 .DS_Store
